@@ -1,0 +1,79 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Group Chat Assignment</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".container").hide();
+			var sign_in = null;
+			while(sign_in == null || sign_in.length < 3) {
+				sign_in = prompt("Name should be at least 3 characters");
+			}
+			var socket = io.connect();
+			socket.emit('new_user', {name:sign_in});
+
+			socket.on("start_chat",function(data) {
+				console.log(data.username+" is here");
+				$(".container").show();
+			});
+			socket.on("user_signed_in", function(data) {
+				$("#chat").append("<div id='row'><p id='logged_in'>"+data.message+"</p></div>");
+			});
+			$("form").submit(function() {
+				socket.emit("user_message", {username:sign_in, message:$("#textbox").val()})
+				$("#textbox").val("");
+				return false;
+			});
+			socket.on("message", function(data) {
+				$("#chat").append("<div id='row'><p class='username'>"+data.from+"</p><p class='comment'>"+data.output+"</p></div>");
+
+				// $("#chat").append("<div id='row'>")
+				// $(".username").append("<p class='username'>"+data.from+"</p>");
+				// $(".comments").append("<p class='comment'>"+data.output+"</p>");
+				// $("#chat").append("</div>")
+			});
+		});
+	</script>
+	<style type="text/css">
+		#chat {
+			background-color: #ececac;
+			width: 600px;;
+			height: 300px;
+			overflow: auto;
+		}
+		#textbox {
+			width: 500px;
+		}
+		.username {
+			display: inline-block;
+			word-wrap: break-word;
+			width: 120px;
+			margin-left: 10px;
+		}
+		.comment {
+			display: inline-block;
+			word-wrap: break-word;
+			width: 420px;
+		}
+		#logged_in {
+			font-style: italic;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h2>Conversation board</h2>
+		<div id="chat">
+			
+		</div>
+		<form method="post">
+			<input id="textbox" type="text" name="message" placeholder="Enter your message here">
+			<input type="submit" value="Send">
+		</form>
+	</div>
+
+</body>
+</html>
