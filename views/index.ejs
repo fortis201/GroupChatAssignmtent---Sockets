@@ -20,7 +20,8 @@
 				$(".container").show();
 			});
 			socket.on("user_signed_in", function(data) {
-				$("#chat").append("<div id='row'><p id='logged_in'>"+data.message+"</p></div>");
+				$("#chat").append("<div class='row'><p class='logged_in'>"+data.message+"</p></div>");
+				document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 			});
 			$("form").submit(function() {
 				socket.emit("user_message", {username:sign_in, message:$("#textbox").val()})
@@ -28,12 +29,12 @@
 				return false;
 			});
 			socket.on("message", function(data) {
-				$("#chat").append("<div id='row'><p class='username'>"+data.from+"</p><p class='comment'>"+data.output+"</p></div>");
-
-				// $("#chat").append("<div id='row'>")
-				// $(".username").append("<p class='username'>"+data.from+"</p>");
-				// $(".comments").append("<p class='comment'>"+data.output+"</p>");
-				// $("#chat").append("</div>")
+				$("#chat").append("<div class='row'><p class='username'>"+data.from+"</p><p class='comment'>"+data.output+"</p></div>");
+				document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+			});
+			socket.on("user_left_chat", function(data) {
+				$("#chat").append("<div class='row'><p class='logged_out'>"+data.message+"</p></div>");
+				document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 			});
 		});
 	</script>
@@ -60,7 +61,7 @@
 			vertical-align: middle;
 			width: 420px;
 		}
-		#logged_in {
+		.logged_in, .logged_out {
 			font-style: italic;
 		}
 	</style>
